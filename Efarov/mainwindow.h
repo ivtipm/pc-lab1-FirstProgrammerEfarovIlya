@@ -4,6 +4,7 @@
 #include <QMainWindow>
 #include "modeltestsorts.h"
 #include <QThread>
+#include <QDebug>
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -19,7 +20,7 @@ public:
 
 private slots:
     void on_bt_explore_th_clicked();
-    void update_graphic(const QPair<QVector<double>, QVector<QVector<double>>> &data);
+    void update_graphic();
     void full_set_progress();
 
     void on_bt_cancel_th_clicked();
@@ -30,5 +31,6 @@ private:
     Ui::MainWindow *ui;
     ModelTestSorts *model;
     QThread* th;
+    QMutex mt;
 };
 #endif // MAINWINDOW_H

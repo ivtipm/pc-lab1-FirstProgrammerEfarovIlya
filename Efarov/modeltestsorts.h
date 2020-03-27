@@ -7,6 +7,7 @@
 #include <sys/time.h>
 #include <QVector>
 #include <QPair>
+#include <QMutex>
 
 
 using VD = QVector<double>;
@@ -26,6 +27,8 @@ private:
     QPair<QVector<double>, QVector<QVector<double>>> __data;
     bool __run = false;
 
+    QMutex* __mutex;
+
     void __random_fill_array(int *arr, int n);
     double __measure_time(int *arr, int n, void (Sorter::*func_sort)());
     double __middle_time(int *arr, int n, void (Sorter::*func_sort)());
@@ -42,7 +45,9 @@ public:
     void setMaxSize(int ms);
     int maxSize() const;
 
-    QPair<QVector<double>, QVector<QVector<double>>> data() const;
+    void setMutex(QMutex* mutex);
+
+    QPair<QVector<double>, QVector<QVector<double>>>& data();
 
     ~ModelTestSorts();
 
@@ -52,7 +57,7 @@ public slots:
 
 signals:
     void progress(int val);
-    void progress_data(const QPair<QVector<double>, QVector<QVector<double>>> &d);
+    void updated_data();
     void finished();
 };
 
