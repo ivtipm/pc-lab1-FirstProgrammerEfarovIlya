@@ -9,12 +9,11 @@ MainWindow::MainWindow(QWidget *parent)
     th = new QThread(this);
     model = new ModelTestSorts();
 
-    model->setMutex(&mt);
-
     connect(th, &QThread::started, model, &ModelTestSorts::test);
     connect(model, &ModelTestSorts::finished, th, &QThread::quit);
-    connect(model, SIGNAL(updated_data()),
-            this, SLOT(update_graphic()));
+    qRegisterMetaType<QPair<QVector<double>, QVector<QVector<double>>>>("QPair<QVector<double>, QVector<QVector<double>>>");
+    connect(model, SIGNAL(progress_data(const QPair<QVector<double>, QVector<QVector<double>>> &)),
+            this, SLOT(update_graphic(const QPair<QVector<double>, QVector<QVector<double>>> &)));
 
     connect(model, &ModelTestSorts::progress, ui->progressBar, &QProgressBar::setValue);
     connect(model, SIGNAL(finished()), this, SLOT(full_set_progress()));
@@ -35,9 +34,8 @@ void MainWindow::full_set_progress()
 }
 
 
-void MainWindow::update_graphic()
+void MainWindow::update_graphic(const QPair<QVector<double>, QVector<QVector<double>>> &data)
 {
-    mt.lock();
     double a = 0;
     double b = model->maxSize() + 100;
     ui->graphic_widget->clearGraphs();
@@ -50,7 +48,7 @@ void MainWindow::update_graphic()
     ui->graphic_widget->addGraph();
     ui->graphic_widget->addGraph();
 
-    ui->graphic_widget->graph(0)->setData(model->data().first, model->data().second[0]);
+    ui->graphic_widget->graph(0)->setData(data.first, data.second[0]);
 
     ui->graphic_widget->graph(0)->setPen(QPen(Qt::red));
 
@@ -58,7 +56,7 @@ void MainWindow::update_graphic()
 \
 
 
-    ui->graphic_widget->graph(1)->setData(model->data().first, model->data().second[1]);
+    ui->graphic_widget->graph(1)->setData(data.first, data.second[1]);
 
     ui->graphic_widget->graph(1)->setPen(QPen(Qt::yellow));
 
@@ -66,14 +64,14 @@ void MainWindow::update_graphic()
 
 
 
-    ui->graphic_widget->graph(2)->setData(model->data().first, model->data().second[2]);
+    ui->graphic_widget->graph(2)->setData(data.first, data.second[2]);
 
     ui->graphic_widget->graph(2)->setPen(QPen(Qt::gray));
 
     ui->graphic_widget->graph(2)->setName("обменом");
 
 
-    ui->graphic_widget->graph(3)->setData(model->data().first, model->data().second[3]);
+    ui->graphic_widget->graph(3)->setData(data.first, data.second[3]);
 
     ui->graphic_widget->graph(3)->setPen(QPen(Qt::blue));
 
@@ -81,7 +79,7 @@ void MainWindow::update_graphic()
 
 
 
-    ui->graphic_widget->graph(4)->setData(model->data().first, model->data().second[4]);
+    ui->graphic_widget->graph(4)->setData(data.first, data.second[4]);
 
     ui->graphic_widget->graph(4)->setPen(QPen(Qt::green));
 
@@ -89,7 +87,7 @@ void MainWindow::update_graphic()
 
 
 
-    ui->graphic_widget->graph(5)->setData(model->data().first, model->data().second[5]);
+    ui->graphic_widget->graph(5)->setData(data.first, data.second[5]);
 
     ui->graphic_widget->graph(5)->setPen(QPen(Qt::cyan));
 
@@ -97,7 +95,7 @@ void MainWindow::update_graphic()
 
 
 
-    ui->graphic_widget->graph(6)->setData(model->data().first, model->data().second[6]);
+    ui->graphic_widget->graph(6)->setData(data.first, data.second[6]);
 
     ui->graphic_widget->graph(6)->setPen(QPen(Qt::magenta));
 
@@ -118,19 +116,19 @@ void MainWindow::update_graphic()
 
     ui->graphic_widget->xAxis->setRange(a, b);
 
-    double minY = model->data().second[0][0], maxY = model->data().second[0][0];
-    for (int i = 0; i < model->data().second.size(); i++)
+    double minY = data.second[0][0], maxY = data.second[0][0];
+    for (int i = 0; i < data.second.size(); i++)
     {
-        for (int j = 1; j < model->data().second[i].size(); j++)
+        for (int j = 1; j < data.second[i].size(); j++)
         {
-            if (model->data().second[i][j]< minY)
+            if (data.second[i][j]< minY)
             {
-                minY = model->data().second[i][j];
+                minY = data.second[i][j];
             }
 
-            if (model->data().second[i][j] > maxY)
+            if (data.second[i][j] > maxY)
             {
-                maxY = model->data().second[i][j];
+                maxY = data.second[i][j];
             }
         }
     }
@@ -138,7 +136,6 @@ void MainWindow::update_graphic()
     ui->graphic_widget->yAxis->setRange(minY, maxY);
 
     ui->graphic_widget->replot();
-    mt.unlock();
 }
 
 

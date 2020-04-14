@@ -1,7 +1,7 @@
 #include "modeltestsorts.h"
 
 ModelTestSorts::ModelTestSorts(QObject *parent)
-    :QObject(parent), __count_tests(3), __step(1), __max_size(100), sorter(nullptr), __mutex(nullptr)
+    :QObject(parent), __count_tests(3), __step(1), __max_size(100), sorter(nullptr)
 {
     srand(static_cast<unsigned>(time(nullptr)));
     sorter = new Sorter();
@@ -11,12 +11,6 @@ ModelTestSorts::ModelTestSorts(QObject *parent)
 void ModelTestSorts::stop_test()
 {
     __run = false;
-}
-
-
-void ModelTestSorts::setMutex(QMutex* mutex)
-{
-    __mutex = mutex;
 }
 
 
@@ -59,20 +53,10 @@ void ModelTestSorts::test()
         v.push_back(y6);
         v.push_back(y7);
 
-        if (__mutex)
-        {
-            __mutex->lock();
-        }
-
         __data.first = x;
         __data.second = v;
 
-        if (__mutex)
-        {
-            __mutex->unlock();
-        }
-
-        emit updated_data();
+        emit progress_data(__data);
 
         if (!__run)
         {
@@ -175,7 +159,7 @@ int ModelTestSorts::maxSize() const
 
 
 
-QPair<QVector<double>, QVector<QVector<double>>>& ModelTestSorts::data()
+QPair<QVector<double>, QVector<QVector<double>>> ModelTestSorts::data() const
 {
     return __data;
 }
